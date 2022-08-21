@@ -1,0 +1,56 @@
+TO house
+  setpencolor "blue"
+  FD 200
+  RT 90
+  FD 200
+  RT 90
+  FD 200
+  RT 90
+  FD 200
+  PU
+  BK 75
+  RT 90
+  PD
+  FD 120
+  RT 90
+  FD 50
+  RT 90
+  FD 120
+  PU
+  LT 90
+  FD 15
+  LT 90
+  FD 80
+  PD
+  FD 40
+  RT 90
+  FD 40
+  RT 90
+  FD 40
+  RT 90
+  FD 40
+  PU
+  FD 80
+  PD
+  FD 40
+  RT 90
+  FD 40
+  RT 90
+  FD 40
+  RT 90
+  FD 40
+  PU
+  RT 90
+  FD 60
+  RT 90
+  FD 120
+  RT 45
+  PD
+  FD 142
+  RT 90
+  FD 142
+END
+clearscreen
+setscreencolor 0
+setpencolor 7
+house
