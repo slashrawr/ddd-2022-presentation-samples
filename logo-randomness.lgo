@@ -1,0 +1,6 @@
+setbackground 0
+repeat 100000 [
+setpencolor (random 1 16)
+fd random(10000)
+rt random(360)
+]
