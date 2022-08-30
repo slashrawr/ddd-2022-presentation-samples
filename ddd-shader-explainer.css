@@ -1,0 +1,13 @@
+html, body {
+    margin: 0;
+    padding: 0;
+  }
+  canvas {
+    display: block;
+  }
+  
+  label {
+    color: #fff;
+    font-size: 2em;
+  }
+  
