@@ -8,34 +8,38 @@ let ray;
 let objects = [];
 
 let maxSteps = 100;
-let maxDistance = 500;
+let maxDistance = 300;
 let minDistance = 1;
+let maxObjects = 5;
+let seed = 11266; //demo seed: 11266
 
-let moveSpeed = 2;
+let moveSpeed = 3;
 
 function setup() {
   createCanvas(700, 700);
   frameRate(30);
   rectMode(CENTER);
   
+  if (seed)
+    randomSeed(seed);
+  
   cbShowRayOrigin = createCheckbox("Show Ray Origin", true);
   cbShowRay = createCheckbox("Show Ray", true);
   cbShowObjects = createCheckbox("Show Objects", true);
   cbShowDistances = createCheckbox("Show Distances", true);
-  sldSteps = createSlider(0,maxSteps,1,1);
+  sldSteps = createSlider(0,maxSteps,25,1);
   sldSteps.style("width", width + "px");
   
   ray = new Ray(width/2,height/2);
-  objects.push(new WorldObject(width/2, 100, 100));
-  objects.push(new WorldObject(200, 600, 150));
-  objects.push(new WorldObject(500, 500, 50));
+  
+  for (let i = 0; i < maxObjects; i++) {
+    objects.push(new WorldObject(i));
+  }
 }
 
 function draw() {
   background(0);
   strokeWeight(0);
-  
-  
   
   if (frameCount % 2 == 0)
     moveRayOrigin();
@@ -45,9 +49,9 @@ function draw() {
   
   if (cbShowObjects.checked()) {
     for (let step = 0; step < sldSteps.value(); step++) {
-      textSize(32);
-      text('Steps: ' + sldSteps.value(), 10, 30);
+      
       let currentSmallestDistance = maxDistance;
+      let nearestObject = {};
       objects.forEach(obj => {
         fill(255);
         obj.draw();
@@ -64,21 +68,32 @@ function draw() {
           }
           if (distance < currentSmallestDistance) {
                   currentSmallestDistance = distance;
+                  nearestObject = obj;
           }
         }
       })
 
-      if(currentSmallestDistance < maxDistance && cbShowRay.checked()) {
-        fill(255,255,255,70);
-        circle(currentPoint.x, currentPoint.y, currentSmallestDistance*2);
-        currentPoint.add(p5.Vector.mult(ray.direction, currentSmallestDistance));
+      if(currentSmallestDistance <= maxDistance && cbShowRay.checked()) {
         if (currentSmallestDistance <= minDistance) {
           fill(255,0,0,70);
           circle(currentPoint.x, currentPoint.y, 10*(abs(sin(frameCount*0.08))));
+          
+          textSize(32);
+          fill(nearestObject.color);
+          text('Reached surface: ' + nearestObject.id, 10, 70);
+        }
+        else {
+          fill(255,255,255,70);
+          circle(currentPoint.x, currentPoint.y, currentSmallestDistance*2);
+          currentPoint.add(p5.Vector.mult(ray.direction, currentSmallestDistance));
         }
       }
       else
         break;
+        
+      fill(255,255,255);
+      textSize(32);
+      text('Steps: ' + sldSteps.value(), 10, 30);
     }
   }
 }

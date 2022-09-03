@@ -20,4 +20,4 @@ class Ray {
       
       pop();
     }
-  }
+}
