@@ -8,9 +8,11 @@ let minDistance = 100
 function setup() {
   createCanvas(800, 800);
   frameRate(30);
+  rectMode(CENTER);
   ray = new Ray(width/2,height/2);
   objects.push(new WorldObject(width/2, 100, 100));
   objects.push(new WorldObject(200, 600, 150));
+  objects.push(new WorldObject(500, 500, 50));
 }
 
 function draw() {
@@ -24,19 +26,19 @@ function draw() {
     objects.forEach(obj => {
       fill(255);
       obj.draw();
-      calcCircleIntersection(obj);
-
+      
+      let distance;
       switch (obj.type) {
         case 'circle' :
-          let intersection = calcCircleDistance(obj, currentPoint);
-          //console.debug(intersection);
-          if (intersection) {
-            let distance = currentPoint.dist(intersection);
-            if (distance < currentSmallestDistance) {
-              currentSmallestDistance = distance;
-            }
-          }
+            distance = calcCircleDistance(obj, currentPoint);
+            calcCircleIntersection(obj);
           break;
+        case 'square' :
+          distance = calcRectDistance(obj, currentPoint);  
+          break;
+      }
+      if (distance < currentSmallestDistance) {
+              currentSmallestDistance = distance;
       }
     })
     
@@ -91,14 +93,56 @@ function calcCircleIntersection(c) {
 }
 
 function calcCircleDistance(c, currentPosition) {
-  //https://www.bluebill.net/circle_ray_intersection.html
   
-  let P = currentPosition;  //Ray origin
-  let C = c.position;    //Circle centre
-  //let V = ray.direction;  //Ray direction
-  let D = p5.Vector.sub(P, C).normalize();  //Vector from ray origin to circle centre
-  let R = p5.Vector.add(c.position,p5.Vector.mult(D,c.size/2));
+  let P = currentPosition;
+  let C = c.position;
+
+  return dist(P.x, P.y, C.x, C.y) - c.size/2;
+}
+
+
+
+function calcRectIntersection(r) {
   
+}
+
+
+function calcRectDistance(r, currentPosition) {
+  let P = p5.Vector.sub(currentPosition, r.position);
+
+  let bx = r.size/2;
+  let by = r.size/2;
   
-  return R;
+  let qx = abs(P.x) - bx;
+  let qy = abs(P.y) - by;
+  
+  return sqrt(pow(max(qx,0),2) + pow(max(qy,0),2)) + min(max(qx,qy),0);
+  
+  /*
+  
+  float sdBox(vec2 p, vec2 b )
+{
+    vec2 d = abs(p)-b;
+    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+}
+  
+  float sdOrientedBox(vec2 p, vec2 a, vec2 b, float th )
+{
+    float l = length(b-a);
+    vec2  d = (b-a)/l;
+    vec2  q = (p-(a+b)*0.5);
+          q = mat2(d.x,-d.y,d.y,d.x)*q;
+          q = abs(q)-vec2(l,th)*0.5;
+    return length(max(q,0.0)) + min(max(q.x,q.y),0.0);    
+}
+  
+  */
+}
+
+function maxVector(v1, v2) {
+  return createVector(max(v1.x,v2.x), max(v1.y,v2.y));
+}
+
+function absVector(v1) {
+  return createVector(abs(v1.x), abs(v1.y));
 }
