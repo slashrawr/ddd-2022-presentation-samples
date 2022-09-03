@@ -1,14 +1,30 @@
+let cbShowRayOrigin;
+let cbShowRay;
+let cbShowObjects;
+let cbShowDistances;
+let sldSteps;
+
 let ray;
 let objects = [];
 
-let maxSteps = 10;
+let maxSteps = 100;
 let maxDistance = 500;
-let minDistance = 100
+let minDistance = 1;
+
+let moveSpeed = 2;
 
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(700, 700);
   frameRate(30);
   rectMode(CENTER);
+  
+  cbShowRayOrigin = createCheckbox("Show Ray Origin", true);
+  cbShowRay = createCheckbox("Show Ray", true);
+  cbShowObjects = createCheckbox("Show Objects", true);
+  cbShowDistances = createCheckbox("Show Distances", true);
+  sldSteps = createSlider(0,maxSteps,1,1);
+  sldSteps.style("width", width + "px");
+  
   ray = new Ray(width/2,height/2);
   objects.push(new WorldObject(width/2, 100, 100));
   objects.push(new WorldObject(200, 600, 150));
@@ -18,42 +34,101 @@ function setup() {
 function draw() {
   background(0);
   strokeWeight(0);
-  let currentPoint = ray.position.copy();
-  ray.draw();
   
-  for (let step = 0; step < maxSteps; step++) {
-    let currentSmallestDistance = maxDistance;
-    objects.forEach(obj => {
-      fill(255);
-      obj.draw();
-      
-      let distance;
-      switch (obj.type) {
-        case 'circle' :
-            distance = calcCircleDistance(obj, currentPoint);
-            calcCircleIntersection(obj);
-          break;
-        case 'square' :
-          distance = calcRectDistance(obj, currentPoint);  
-          break;
+  
+  
+  if (frameCount % 2 == 0)
+    moveRayOrigin();
+  
+  let currentPoint = ray.position.copy();
+  ray.draw(cbShowRayOrigin.checked(), cbShowRay.checked());
+  
+  if (cbShowObjects.checked()) {
+    for (let step = 0; step < sldSteps.value(); step++) {
+      textSize(32);
+      text('Steps: ' + sldSteps.value(), 10, 30);
+      let currentSmallestDistance = maxDistance;
+      objects.forEach(obj => {
+        fill(255);
+        obj.draw();
+
+        if (cbShowDistances.checked()) {
+          let distance;
+          switch (obj.type) {
+            case 'circle' :
+                distance = calcCircleDistance(obj, currentPoint);
+              break;
+            case 'square' :
+              distance = calcRectDistance(obj, currentPoint);  
+              break;
+          }
+          if (distance < currentSmallestDistance) {
+                  currentSmallestDistance = distance;
+          }
+        }
+      })
+
+      if(currentSmallestDistance < maxDistance && cbShowRay.checked()) {
+        fill(255,255,255,70);
+        circle(currentPoint.x, currentPoint.y, currentSmallestDistance*2);
+        currentPoint.add(p5.Vector.mult(ray.direction, currentSmallestDistance));
+        if (currentSmallestDistance <= minDistance) {
+          fill(255,0,0,70);
+          circle(currentPoint.x, currentPoint.y, 10*(abs(sin(frameCount*0.08))));
+        }
       }
-      if (distance < currentSmallestDistance) {
-              currentSmallestDistance = distance;
-      }
-    })
-    
-    if(currentSmallestDistance < maxDistance) {
-      fill(255,255,255,70);
-      circle(currentPoint.x, currentPoint.y, currentSmallestDistance*2);
-      currentPoint.add(p5.Vector.mult(ray.direction, currentSmallestDistance));
+      else
+        break;
     }
-    else
-      break;
   }
 }
 
+function moveRayOrigin() {
+  if (keyIsPressed) {
+    if (keyIsDown(87)) { //W
+      ray.position.y += moveSpeed;
+    } 
+    else if (keyIsDown(65)) { //A
+      ray.position.x -= moveSpeed;
+    }
+    else if (keyIsDown(83)) { //S
+      ray.position.y -= moveSpeed;
+    }
+    else if (keyIsDown(68)) { //D
+      ray.position.x += moveSpeed;
+    }
+  }
+}
+
+
+function calcCircleDistance(c, currentPosition) {
+  
+  let P = currentPosition;
+  let C = c.position;
+
+  return dist(P.x, P.y, C.x, C.y) - c.size/2;
+}
+
+function calcRectDistance(r, currentPosition) {
+  let P = p5.Vector.sub(currentPosition, r.position);
+
+  let bx = r.size/2;
+  let by = r.size/2;
+  
+  let qx = abs(P.x) - bx;
+  let qy = abs(P.y) - by;
+  
+  return sqrt(pow(max(qx,0),2) + pow(max(qy,0),2)) + min(max(qx,qy),0);
+}
+
+
+//This function was used early on in development of this.
+//It is no longer used but is a great piece of code for calculating
+//the intersection of a ray with a circle. It helped me understand
+//some of the vector maths behind the calculation so I wanted to keep
+//it to refer back back to later.
+//Source: https://www.bluebill.net/circle_ray_intersection.html
 function calcCircleIntersection(c) {
-  //https://www.bluebill.net/circle_ray_intersection.html
   
   let P = ray.position;  //Ray origin
   let C = c.position;    //Circle centre
@@ -90,59 +165,4 @@ function calcCircleIntersection(c) {
     console.debug("tangent");
   }  
   return P2;
-}
-
-function calcCircleDistance(c, currentPosition) {
-  
-  let P = currentPosition;
-  let C = c.position;
-
-  return dist(P.x, P.y, C.x, C.y) - c.size/2;
-}
-
-
-
-function calcRectIntersection(r) {
-  
-}
-
-
-function calcRectDistance(r, currentPosition) {
-  let P = p5.Vector.sub(currentPosition, r.position);
-
-  let bx = r.size/2;
-  let by = r.size/2;
-  
-  let qx = abs(P.x) - bx;
-  let qy = abs(P.y) - by;
-  
-  return sqrt(pow(max(qx,0),2) + pow(max(qy,0),2)) + min(max(qx,qy),0);
-  
-  /*
-  
-  float sdBox(vec2 p, vec2 b )
-{
-    vec2 d = abs(p)-b;
-    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
-}
-  
-  float sdOrientedBox(vec2 p, vec2 a, vec2 b, float th )
-{
-    float l = length(b-a);
-    vec2  d = (b-a)/l;
-    vec2  q = (p-(a+b)*0.5);
-          q = mat2(d.x,-d.y,d.y,d.x)*q;
-          q = abs(q)-vec2(l,th)*0.5;
-    return length(max(q,0.0)) + min(max(q.x,q.y),0.0);    
-}
-  
-  */
-}
-
-function maxVector(v1, v2) {
-  return createVector(max(v1.x,v2.x), max(v1.y,v2.y));
-}
-
-function absVector(v1) {
-  return createVector(abs(v1.x), abs(v1.y));
 }
