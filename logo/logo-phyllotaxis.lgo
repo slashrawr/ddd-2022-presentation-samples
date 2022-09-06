@@ -1,21 +1,21 @@
 clearscreen;
 setbackground(0);
-
+st;
 make "d 2;
 make "m 137.5;
 make "c 5*:d;
 
 to point :x :y :a :i
-  setpensize 1
-  setpencolor 7
-  pu
-  setxy :x :y
-  pd
+  setpensize 1;
+  setpencolor 7;
+  pu;
+  setxy :x :y;
+  pd;
   repeat 45 [
-    fd :d
-    rt 8
+    fd :d;
+    rt 8;
   ]
-End
+end
 
 repeat 1000 [
   localmake "a :m*repcount;
@@ -25,5 +25,5 @@ repeat 1000 [
   make "x :x*:rad;
   make "y :y*:rad;
   point :x :y :a repcount;
+  wait 1;
 ]
-ht
