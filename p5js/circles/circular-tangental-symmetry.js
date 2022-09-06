@@ -1,29 +1,19 @@
 let showAxis = false;
-let seed = 135475;
+let seed = 951;
 let numberOfCircles = 7;
 let radiusScale = 20;
-let width = 1000;
-let height = 500;
-let minY;
-let maxY;
-let minX;
-let maxX;
+let width = 700;
+let height = 700;
+
 
 function setup() {
-  createCanvas(width, height, WEBGL);
+  createCanvas(width, height);
   noLoop();
   blendMode(ADD);
-  
-  minY = -height/2;
-  maxY = height/2;
-  minX = -width/2;
-  maxX = width/2;
 }
 
 function draw() {
-  smooth(8);
   background(0);
-  scale(1,-1); //flip the Y axis
   angleMode(DEGREES);
   randomSeed(seed);
   
@@ -33,9 +23,8 @@ function draw() {
     line(minX, 0, maxX, 0);
   }
   
-  let v1 = createVector(random(minX, maxX), random(minY, maxY));
-  v1.setHeading(0);
-  
+  let v1 = createVector(random(width), random(height));
+
   for (c = 1; c <= numberOfCircles; c++)
   {
     stroke(random(0,255),random(0,255), random(0,255));
@@ -44,7 +33,7 @@ function draw() {
     {
       tx = v1.x + (c*radiusScale) * cos(i);
       ty = v1.y + (c*radiusScale) * sin(i);
-      tm = -(1/((ty-v1.y)/(tx-v1.x))); //tangent slope
+      tm = -(1/((ty-v1.y)/(tx-v1.x)));
 
       let tangenVector = createVector(tx, ty);
       tangenVector.setHeading(radians(atan(tm)));
