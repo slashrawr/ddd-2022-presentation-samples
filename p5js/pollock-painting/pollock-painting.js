@@ -23,6 +23,7 @@ function setup() {
   createCanvas(700, 700);
   angleMode(RADIANS);
   colorMode(RGB);
+  //randomSeed(seed);
   
   max_steps = random(100,1000);
   aspect_ratio = width / height;
@@ -104,7 +105,7 @@ function setStroke(stroke) {
   s.time = random(0, s.duration);
   s.velocity = new p5.Vector(random(-1, 1), random(-1, 1));
   s.speed = random(0.1, 2) * aspect_ratio;
-  s.colour = hexToRGB(col,random(0.3,1.0));
+  s.colour = hexToRGB(col,random(0,255));
   
   return s;
 }
@@ -116,13 +117,12 @@ function randomPosition() {
   return vec;
 }
 
-function hexToRGB(h,alpha) {
-  let r = 0, g = 0, b = 0;
-  r = "0x" + h[1] + h[2];
-  g = "0x" + h[3] + h[4];
-  b = "0x" + h[5] + h[6];
-  r = +(r / 255 * 100).toFixed(1);
-  g = +(g / 255 * 100).toFixed(1);
-  b = +(b / 255 * 100).toFixed(1);
-  return "rgba(" + r + "%," + g + "%," + b + "%," + str(alpha) + ")";
+function hexToRGB(hexColour, alpha) {
+  var aRgbHex = hexColour.replace("#","").match(/.{1,2}/g);
+  var aRgb = [
+            parseInt(aRgbHex[0], 16),
+            parseInt(aRgbHex[1], 16),
+            parseInt(aRgbHex[2], 16)
+        ];
+  return color(aRgb[0], aRgb[1], aRgb[2], alpha);
 }

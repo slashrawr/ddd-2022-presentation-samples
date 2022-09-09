@@ -1,13 +1,12 @@
 let circles = [];
 let growRate = 1;
-let startRadius = 1;
-let circlesPerFrame = 12;
-let swidth = 0;
+let startRadius = 0.5;
+let circlesPerFrame = 20;
+let swidth = 1;
 let attemptLimit = 100;
 let palettes = [];
 let palette = {};
 let img;
-let pd = 1;
 
 function preload() {
   palettes = loadJSON('assets/palettes.json');
@@ -17,8 +16,6 @@ function preload() {
 function setup() {
   createCanvas(img.width, img.height);
   colorMode(RGB);
-  //console.debug(pixelDensity());
-  pixelDensity(pd);
   palette = palettes[int(random(0,199))];
   img.loadPixels();
 }
@@ -92,18 +89,15 @@ function growCircle(c) {
     c.radius += growRate/c.radius;
   }
   
-  
-  //stroke(255);
-  let index = (floor(c.position.x) *4 * pd) + (floor(c.position.y) * 4 *pd) * img.width;
-  //console.debug(index);
+  let index = (floor(c.position.x) * 4) + (floor(c.position.y) * 4) * img.width;
   let r = img.pixels[index];
   let g = img.pixels[index+1];
   let b = img.pixels[index+2];
   stroke(color(r,g,b));
   fill(color(r,g,b));
-    strokeWeight(swidth);
+  strokeWeight(swidth);
     //noFill();
-    circle(c.position.x, c.position.y, c.radius*2);
+  circle(c.position.x, c.position.y, c.radius*2);
 }
 
 function hexToRGB(hexColour, alpha) {
